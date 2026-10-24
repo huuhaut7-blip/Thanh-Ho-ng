@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Writing Master - Trợ Lý Viết Tiếng Anh AI</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .tab-btn.active {
+            color: #4f46e5;
+            border-bottom: 2px solid #4f46e5;
+            background-color: #f5f3ff;
+        }
+        ins {
+            background-color: #dcfce7;
+            color: #15803d;
+            text-decoration: none;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        del {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            padding: 2px 4px;
+            border-radius: 4px;
+            margin-right: 4px;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header / Navigation -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-brand-600 flex items-center justify-center text-white shadow-md shadow-brand-500/20">
+                    <i class="fa-solid fa-wand-magic-sparkles text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-slate-900 text-lg leading-tight flex items-center gap-2">
+                        EnglishWriting<span class="text-brand-600">Pro</span>
+                        <span class="text-xs bg-brand-100 text-brand-700 font-semibold px-2 py-0.5 rounded-full">AI Edition</span>
+                    </h1>
+                    <p class="text-xs text-slate-500 hidden sm:block">Tối ưu hóa đoạn văn & Chữa lỗi tiếng Anh chuyên sâu</p>
+                </div>
+            </div>
+
+            <!-- Header Actions -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <button id="historyBtn" class="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition">
+                    <i class="fa-solid fa-clock-rotate-left text-slate-500"></i>
+                    <span class="hidden sm:inline">Lịch sử</span>
+                </button>
+                <button id="apiKeyBtn" class="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-medium text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-200 rounded-lg transition">
+                    <i class="fa-solid fa-key text-brand-500"></i>
+                    <span id="apiKeyStatusText">Cấu hình API Key</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main App Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col gap-6">
+        
+        <!-- Top Info Banner -->
+        <div id="demoBanner" class="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-xl text-xs sm:text-sm flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5">
+                <i class="fa-solid fa-circle-info text-amber-600 text-base flex-shrink-0"></i>
+                <span>Đang chạy ở <strong>Chế độ Demo (Mock Engine)</strong>. Để kích hoạt toàn bộ sức mạnh AI chuyên sâu của Gemini, hãy nhập Gemini API Key cá nhân của bạn.</span>
+            </div>
+            <button onclick="openApiKeyModal()" class="text-xs font-semibold text-amber-900 underline hover:text-amber-700 whitespace-nowrap">Cấu hình ngay</button>
+        </div>
+
+        <!-- 2 Column Split Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 items-start">
+            
+            <!-- LEFT PANEL: Text Input & Options -->
+            <section class="lg:col-span-5 bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col overflow-hidden">
+                <div class="p-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+                    <h2 class="font-semibold text-slate-800 flex items-center gap-2 text-sm">
+                        <i class="fa-solid fa-pen-to-square text-brand-600"></i> Văn bản cần kiểm tra
+                    </h2>
+                    <div class="flex items-center gap-2">
+                        <button id="pasteBtn" title="Dán từ Clipboard" class="px-2.5 py-1 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 rounded transition flex items-center gap-1">
+                            <i class="fa-regular fa-clipboard"></i> Dán
+                        </button>
+                        <button id="clearBtn" title="Xóa tất cả" class="px-2.5 py-1 text-xs font-medium text-rose-600 hover:bg-rose-50 rounded transition flex items-center gap-1">
+                            <i class="fa-regular fa-trash-can"></i> Xóa
+                        </button>
+                    </div>
+                </div>
+
+                <div class="p-4 flex-1 flex flex-col gap-4">
+                    <!-- Text Area -->
+                    <div class="relative flex-1 min-h-[220px] sm:min-h-[280px]">
+                        <textarea id="inputText" class="w-full h-full p-3.5 text-slate-800 text-sm sm:text-base placeholder-slate-400 bg-transparent border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 resize-none transition custom-scrollbar" placeholder="Nhập hoặc dán đoạn văn tiếng Anh của bạn vào đây... (Ví dụ: I goes to school yesterday and I think it is very good experience...)"></textarea>
+                    </div>
+
+                    <!-- Word & Character Count Bar -->
+                    <div class="flex items-center justify-between text-xs text-slate-500 px-1">
+                        <div class="flex gap-3">
+                            <span>Từ: <strong id="wordCount" class="text-slate-700">0</strong></span>
+                            <span>Ký tự: <strong id="charCount" class="text-slate-700">0</strong></span>
+                        </div>
+                        <span id="readingTime">Thời gian đọc: ~0 phút</span>
+                    </div>
+
+                    <!-- Processing Mode Select -->
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider">Chế độ tối ưu hóa:</label>
+                        <div class="grid grid-cols-1 gap-2">
+                            <select id="modeSelect" class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm rounded-xl p-2.5 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 font-medium outline-none">
+                                <option value="grammar">🔍 Sửa lỗi Ngữ pháp & Chính tả (Grammar & Spell Check)</option>
+                                <option value="natural" selected>✨ Tự nhiên & Trôi chảy (Make it sound natural)</option>
+                                <option value="academic">🎓 Văn phong Viện hàn / Academic Writing</option>
+                                <option value="business">💼 Văn phong Công sở / Business English</option>
+                                <option value="vocab">🚀 Nâng cấp Từ vựng C1/C2 (Vocabulary Booster)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Action Submit Button -->
+                    <button id="processBtn" class="w-full mt-2 py-3 px-4 bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white font-semibold rounded-xl shadow-md shadow-brand-500/25 transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>Phân Tích & Tối Ưu Ngay</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- RIGHT PANEL: Dashboard Output -->
+            <section class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col min-h-[500px] overflow-hidden">
+                
+                <!-- Dashboard Navigation Tabs -->
+                <div class="border-b border-slate-200 bg-slate-50/50 flex overflow-x-auto custom-scrollbar">
+                    <button data-tab="tab-corrected" class="tab-btn active whitespace-nowrap px-4 py-3.5 text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 border-b-2 border-transparent transition flex items-center gap-2">
+                        <i class="fa-solid fa-check-double text-emerald-600"></i>
+                        <span>Kết Quả Đã Sửa</span>
+                    </button>
+                    <button data-tab="tab-mistakes" class="tab-btn whitespace-nowrap px-4 py-3.5 text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 border-b-2 border-transparent transition flex items-center gap-2">
+                        <i class="fa-solid fa-circle-exclamation text-rose-500"></i>
+                        <span>Phân Tích Lỗi (<span id="mistakeBadge">0</span>)</span>
+                    </button>
+                    <button data-tab="tab-vocab" class="tab-btn whitespace-nowrap px-4 py-3.5 text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 border-b-2 border-transparent transition flex items-center gap-2">
+                        <i class="fa-solid fa-gem text-amber-500"></i>
+                        <span>Từ Vựng & Idioms</span>
+                    </button>
+                    <button data-tab="tab-score" class="tab-btn whitespace-nowrap px-4 py-3.5 text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 border-b-2 border-transparent transition flex items-center gap-2">
+                        <i class="fa-solid fa-chart-pie text-brand-600"></i>
+                        <span>Điểm Số & Đánh Giá</span>
+                    </button>
+                </div>
+
+                <!-- Tab Content Area -->
+                <div class="p-5 flex-1 relative flex flex-col justify-between">
+                    
+                    <!-- Empty State Placeholder -->
+                    <div id="emptyState" class="absolute inset-0 flex flex-col items-center justify-center p-8 text-center bg-white z-10">
+                        <div class="w-16 h-16 rounded-full bg-brand-50 flex items-center justify-center text-brand-600 text-2xl mb-3">
+                            <i class="fa-solid fa-laptop-code"></i>
+                        </div>
+                        <h3 class="text-base font-semibold text-slate-800 mb-1">Chưa có dữ liệu phân tích</h3>
+                        <p class="text-xs sm:text-sm text-slate-500 max-w-sm">Nhập đoạn văn tiếng Anh ở ô bên trái và bấm nút "Phân Tích & Tối Ưu Ngay" để xem kết quả chi tiết.</p>
+                    </div>
+
+                    <!-- Loading State Placeholder -->
+                    <div id="loadingState" class="hidden absolute inset-0 flex flex-col items-center justify-center p-8 text-center bg-white/90 backdrop-blur-sm z-20">
+                        <div class="w-12 h-12 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin mb-4"></div>
+                        <p class="text-sm font-semibold text-slate-800 animate-pulse">AI đang phân tích & sửa lỗi đoạn văn...</p>
+                        <p class="text-xs text-slate-500 mt-1">Đang đối chiếu ngữ pháp, ngữ cảnh & phong cách văn bản</p>
+                    </div>
+
+                    <!-- TAB 1: Corrected Output -->
+                    <div id="tab-corrected" class="tab-content flex-1 flex flex-col gap-4">
+                        <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-semibold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">Bản Tối Ưu</span>
+                                <span class="text-xs text-slate-400">So sánh highlight màu xanh (thêm/sửa) & đỏ (xóa)</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button id="ttsBtn" title="Đọc đoạn văn" class="p-2 text-slate-600 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition">
+                                    <i class="fa-solid fa-volume-high"></i>
+                                </button>
+                                <button id="copyBtn" title="Sao chép kết quả" class="p-2 text-slate-600 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition">
+                                    <i class="fa-regular fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Highlighted Render Text -->
+                        <div id="highlightedOutput" class="p-4 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 text-base leading-relaxed custom-scrollbar max-h-[300px] overflow-y-auto">
+                            <!-- Populated dynamically -->
+                        </div>
+
+                        <!-- Clean Output Copy Container -->
+                        <div class="mt-auto pt-3 border-t border-slate-100">
+                            <h4 class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Văn bản thuần (Đã hoàn thiện):</h4>
+                            <div id="cleanOutput" class="p-3 bg-white border border-slate-200 rounded-lg text-sm text-slate-700 select-all">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: Mistakes Breakdown -->
+                    <div id="tab-mistakes" class="tab-content hidden flex-1 flex flex-col gap-4">
+                        <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                            <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Chi tiết các lỗi cần giải thích:</h3>
+                        </div>
+
+                        <div id="mistakesList" class="space-y-3 custom-scrollbar max-h-[420px] overflow-y-auto pr-1">
+                            <!-- Dynamic Mistake Cards -->
+                        </div>
+                    </div>
+
+                    <!-- TAB 3: Vocabulary & Nuances -->
+                    <div id="tab-vocab" class="tab-content hidden flex-1 flex flex-col gap-4">
+                        <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                            <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Gợi ý Nâng cấp Từ vựng & Cụm từ hay:</h3>
+                        </div>
+
+                        <div id="vocabList" class="grid grid-cols-1 gap-3 custom-scrollbar max-h-[420px] overflow-y-auto pr-1">
+                            <!-- Dynamic Vocab Suggestion Cards -->
+                        </div>
+                    </div>
+
+                    <!-- TAB 4: Score & Analysis -->
+                    <div id="tab-score" class="tab-content hidden flex-1 flex flex-col gap-4">
+                        <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                            <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Đánh giá chất lượng bài viết:</h3>
+                        </div>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <div class="p-3 bg-indigo-50 border border-indigo-100 rounded-xl text-center">
+                                <div class="text-xs text-indigo-600 font-medium mb-1">Độ Tự Nhiên</div>
+                                <div id="scoreFluency" class="text-xl font-bold text-indigo-900">0/100</div>
+                            </div>
+                            <div class="p-3 bg-emerald-50 border border-emerald-100 rounded-xl text-center">
+                                <div class="text-xs text-emerald-600 font-medium mb-1">Độ Chính Xác</div>
+                                <div id="scoreAccuracy" class="text-xl font-bold text-emerald-900">0/100</div>
+                            </div>
+                            <div class="p-3 bg-amber-50 border border-amber-100 rounded-xl text-center">
+                                <div class="text-xs text-amber-600 font-medium mb-1">Đa Dạng Từ Vựng</div>
+                                <div id="scoreVocab" class="text-xl font-bold text-amber-900">0/100</div>
+                            </div>
+                            <div class="p-3 bg-purple-50 border border-purple-100 rounded-xl text-center">
+                                <div class="text-xs text-purple-600 font-medium mb-1">Readability</div>
+                                <div id="scoreReadability" class="text-xl font-bold text-purple-900">CEFR</div>
+                            </div>
+                        </div>
+
+                        <!-- Overall Summary & Advice -->
+                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 mt-2">
+                            <h4 class="font-semibold text-slate-800 text-sm mb-1.5 flex items-center gap-1.5">
+                                <i class="fa-solid fa-comment-dots text-brand-600"></i> Nhận xét & Lời khuyên tổng quan:
+                            </h4>
+                            <p id="overallAdvice" class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                                Chưa có dữ liệu đánh giá.
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Modal: API Key Setup -->
+    <div id="apiKeyModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-100">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-key text-brand-600"></i> Cấu hình Gemini API Key
+                </h3>
+                <button onclick="closeApiKeyModal()" class="text-slate-400 hover:text-slate-600 text-sm"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+                Nhập Google Gemini API Key để mở khóa AI sửa lỗi chuẩn xác 100%. API key được lưu an toàn tuyệt đối trên trình duyệt của bạn (LocalStorage).
+            </p>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Gemini API Key</label>
+                    <input type="password" id="apiKeyInput" placeholder="AIzaSy..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500">
+                </div>
+                <div class="flex items-center justify-between text-xs">
+                    <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-brand-600 hover:underline flex items-center gap-1">
+                        Lấy API Key miễn phí tại Google AI Studio <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="mt-6 flex gap-2 justify-end">
+                <button onclick="saveApiKey('')" class="px-3.5 py-2 text-xs font-medium text-rose-600 hover:bg-rose-50 rounded-xl transition">Xóa Key</button>
+                <button onclick="closeApiKeyModal()" class="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition">Hủy</button>
+                <button onclick="handleSaveApiKey()" class="px-4 py-2 text-xs font-medium text-white bg-brand-600 hover:bg-brand-700 rounded-xl shadow-sm transition">Lưu Thay Đổi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: History Drawer/Modal -->
+    <div id="historyModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-xl border border-slate-100 flex flex-col max-h-[80vh]">
+            <div class="flex items-center justify-between mb-4 border-b pb-3">
+                <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left text-brand-600"></i> Lịch Sử Lần Kiểm Tra Trước
+                </h3>
+                <button onclick="closeHistoryModal()" class="text-slate-400 hover:text-slate-600 text-sm"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div id="historyContainer" class="flex-1 overflow-y-auto custom-scrollbar space-y-3 pr-1">
+                <!-- Populated dynamically -->
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center">
+                <button onclick="clearHistory()" class="text-xs font-medium text-rose-600 hover:underline">Xóa sạch lịch sử</button>
+                <button onclick="closeHistoryModal()" class="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-xl">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-slate-800 text-white px-4 py-3 rounded-xl shadow-lg text-xs sm:text-sm flex items-center gap-2 transition transform translate-y-20 opacity-0 pointer-events-none z-50">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toastMsg">Thông báo</span>
+    </div>
+
+    <!-- Main Logic Script -->
+    <script>
+        // Global App State
+        let apiKey = localStorage.getItem('GEMINI_API_KEY') || '';
+        let currentResult = null;
+        let historyList = JSON.parse(localStorage.getItem('ENGLISH_APP_HISTORY') || '[]');
+
+        // DOM Elements
+        const inputText = document.getElementById('inputText');
+        const wordCount = document.getElementById('wordCount');
+        const charCount = document.getElementById('charCount');
+        const readingTime = document.getElementById('readingTime');
+        const modeSelect = document.getElementById('modeSelect');
+        const processBtn = document.getElementById('processBtn');
+        const pasteBtn = document.getElementById('pasteBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const emptyState = document.getElementById('emptyState');
+        const loadingState = document.getElementById('loadingState');
+        const demoBanner = document.getElementById('demoBanner');
+        const apiKeyStatusText = document.getElementById('apiKeyStatusText');
+
+        // Output DOMs
+        const highlightedOutput = document.getElementById('highlightedOutput');
+        const cleanOutput = document.getElementById('cleanOutput');
+        const mistakesList = document.getElementById('mistakesList');
+        const vocabList = document.getElementById('vocabList');
+        const mistakeBadge = document.getElementById('mistakeBadge');
+        const scoreFluency = document.getElementById('scoreFluency');
+        const scoreAccuracy = document.getElementById('scoreAccuracy');
+        const scoreVocab = document.getElementById('scoreVocab');
+        const scoreReadability = document.getElementById('scoreReadability');
+        const overallAdvice = document.getElementById('overallAdvice');
+
+        // Init App
+        window.addEventListener('DOMContentLoaded', () => {
+            updateApiKeyUI();
+            setupTabNavigation();
+            setupEventListeners();
+            updateTextStats();
+        });
+
+        function updateApiKeyUI() {
+            if (apiKey) {
+                apiKeyStatusText.innerText = "API Key: Đã kết nối";
+                demoBanner.classList.add('hidden');
+            } else {
+                apiKeyStatusText.innerText = "Dùng Chế độ Demo";
+                demoBanner.classList.remove('hidden');
+            }
+        }
+
+        // Tab Navigation
+        function setupTabNavigation() {
+            const tabs = document.querySelectorAll('.tab-btn');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+
+                    const target = tab.getAttribute('data-tab');
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+                    document.getElementById(target).classList.remove('hidden');
+                });
+            });
+        }
+
+        // Text Counter & Stats
+        function updateTextStats() {
+            const text = inputText.value.trim();
+            const words = text ? text.split(/\s+/).filter(Boolean).length : 0;
+            const chars = text.length;
+            const mins = Math.ceil(words / 200);
+
+            wordCount.innerText = words;
+            charCount.innerText = chars;
+            readingTime.innerText = `Thời gian đọc: ~${mins} phút`;
+        }
+
+        function setupEventListeners() {
+            inputText.addEventListener('input', updateTextStats);
+
+            clearBtn.addEventListener('click', () => {
+                inputText.value = '';
+                updateTextStats();
+                showToast('Đã xóa văn bản', 'info');
+            });
+
+            pasteBtn.addEventListener('click', async () => {
+                try {
+                    const text = await navigator.clipboard.readText();
+                    inputText.value = text;
+                    updateTextStats();
+                    showToast('Đã dán văn bản từ bộ nhớ tạm', 'success');
+                } catch (err) {
+                    showToast('Không thể dán tự động, hãy bấm Ctrl+V', 'warning');
+                }
+            });
+
+            processBtn.addEventListener('click', processEnglishText);
+            document.getElementById('apiKeyBtn').addEventListener('click', openApiKeyModal);
+            document.getElementById('historyBtn').addEventListener('click', openHistoryModal);
+
+            // Copy Output
+            document.getElementById('copyBtn').addEventListener('click', () => {
+                if (!currentResult) return;
+                const textToCopy = cleanOutput.innerText;
+                const textarea = document.createElement('textarea');
+                textarea.value = textToCopy;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showToast('Đã sao chép văn bản hoàn thiện!', 'success');
+            });
+
+            // Text-To-Speech (Web Speech API)
+            document.getElementById('ttsBtn').addEventListener('click', () => {
+                if (!currentResult || !cleanOutput.innerText) return;
+                window.speechSynthesis.cancel(); // Stop ongoing
+                const utterance = new SpeechSynthesisUtterance(cleanOutput.innerText);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.9;
+                window.speechSynthesis.speak(utterance);
+                showToast('Đang đọc bài viết giọng chuẩn Anh-Mỹ...', 'info');
+            });
+        }
+
+        // Processing Trigger
+        async function processEnglishText() {
+            const text = inputText.value.trim();
+            if (!text) {
+                showToast('Vui lòng nhập đoạn văn tiếng Anh cần kiểm tra!', 'warning');
+                return;
+            }
+
+            loadingState.classList.remove('hidden');
+
+            try {
+                let data;
+                if (apiKey) {
+                    data = await callGeminiAPI(text, modeSelect.value);
+                } else {
+                    // Fallback to Mock Engine
+                    await new Promise(r => setTimeout(r, 1200));
+                    data = getMockAnalysis(text);
+                }
+
+                currentResult = data;
+                renderDashboardResults(data);
+                saveToHistory(text, data);
+                emptyState.classList.add('hidden');
+                showToast('Đã hoàn tất phân tích bài viết!', 'success');
+            } catch (error) {
+                console.error(error);
+                showToast('Lỗi khi phân tích. Vui lòng kiểm tra lại API Key hoặc kết nối mạng.', 'error');
+            } finally {
+                loadingState.classList.add('hidden');
+            }
+        }
+
+        // Call Gemini API with Structured Schema Response
+        async function callGeminiAPI(text, mode) {
+            const systemPrompt = `Bạn là một chuyên gia ngôn ngữ tiếng Anh và giảng viên luyện thi IELTS/Academic Writing đỉnh cao.
+Nhiệm vụ của bạn là nhận vào một đoạn văn tiếng Anh, phân tích lỗi ngữ pháp, cải thiện câu từ theo chế độ '${mode}', gợi ý từ vựng cao cấp, và đánh giá chi tiết bài viết.
+Trả về dữ liệu theo định dạng JSON duy nhất khớp đúng với cấu trúc được yêu cầu. Tất cả giải thích tiếng Việt phải rõ ràng, dễ hiểu cho người Việt Nam học tiếng Anh.`;
+
+            const userQuery = `Đoạn văn tiếng Anh cần xử lý: "${text}". Hãy kiểm tra, sửa đổi và trả về JSON.`;
+
+            const payload = {
+                contents: [{ role: "user", parts: [{ text: userQuery }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            correctedHtml: { type: "STRING", description: "Đoạn văn đã sửa có tag <del>từ sai</del> và <ins>từ đúng/mới</ins> để làm nổi bật." },
+                            cleanText: { type: "STRING", description: "Đoạn văn hoàn chỉnh đã sửa đẹp đẽ không chứa tag HTML." },
+                            mistakes: {
+                                type: "ARRAY",
+                                items: {
+                                    type: "OBJECT",
+                                    properties: {
+                                        original: { type: "STRING" },
+                                        corrected: { type: "STRING" },
+                                        type: { type: "STRING", description: "Loại lỗi: Ngữ pháp, Chính tả, Từ vựng, Dấu câu..." },
+                                        explanationVi: { type: "STRING", description: "Giải thích lý do sai và quy tắc ngữ pháp bằng tiếng Việt" }
+                                    }
+                                }
+                            },
+                            vocabulary: {
+                                type: "ARRAY",
+                                items: {
+                                    type: "OBJECT",
+                                    properties: {
+                                        originalWord: { type: "STRING" },
+                                        advancedOption: { type: "STRING" },
+                                        level: { type: "STRING", description: "C1, C2, Academic, Collocation..." },
+                                        meaningVi: { type: "STRING" },
+                                        exampleSentence: { type: "STRING" }
+                                    }
+                                }
+                            },
+                            scores: {
+                                type: "OBJECT",
+                                properties: {
+                                    fluency: { type: "NUMBER" },
+                                    accuracy: { type: "NUMBER" },
+                                    vocabVariety: { type: "NUMBER" },
+                                    cefrLevel: { type: "STRING" },
+                                    overallAdviceVi: { type: "STRING" }
+                                }
+                            }
+                        },
+                        required: ["correctedHtml", "cleanText", "mistakes", "vocabulary", "scores"]
+                    }
+                }
+            };
+
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                throw new Error("Gemini API Request Failed");
+            }
+
+            const jsonRes = await response.json();
+            const textContent = jsonRes.candidates?.[0]?.content?.parts?.[0]?.text;
+            return JSON.parse(textContent);
+        }
+
+        // Intelligent Smart Mock Engine for Demo mode
+        function getMockAnalysis(text) {
+            // Basic regex replaces for common English learner mistakes
+            let html = text;
+            let clean = text;
+            const mistakes = [];
+            const vocab = [];
+
+            // Detect typical errors
+            if (/i goes/i.test(text)) {
+                html = html.replace(/i goes/gi, '<del>I goes</del><ins>I went</ins>');
+                clean = clean.replace(/i goes/gi, 'I went');
+                mistakes.push({
+                    original: "I goes",
+                    corrected: "I went",
+                    type: "Chia động từ & Thì quá khứ",
+                    explanationVi: "Trong thì quá khứ đơn (Yesterday), động từ 'go' phải biến thành 'went'. Đồng thời chủ từ 'I' không đi với 'goes'."
+                });
+            }
+
+            if (/very good/i.test(text)) {
+                html = html.replace(/very good/gi, '<del>very good</del><ins>an exceptional</ins>');
+                clean = clean.replace(/very good/gi, 'an exceptional');
+                vocab.push({
+                    originalWord: "very good",
+                    advancedOption: "exceptional / outstanding",
+                    level: "C1 Level",
+                    meaningVi: "Xuất sắc, phi thường",
+                    exampleSentence: "It was an exceptional experience that broadened my horizons."
+                });
+            }
+
+            if (/think it is/i.test(text)) {
+                html = html.replace(/think it is/gi, '<del>think it is</del><ins>consider it to be</ins>');
+                clean = clean.replace(/think it is/gi, 'consider it to be');
+            }
+
+            // Default fallback if no rules matched
+            if (mistakes.length === 0) {
+                html = `<ins>${text}</ins> <span class="text-xs text-slate-500">(Bài viết của bạn khá chuẩn, AI đã tối ưu hóa văn phong tự nhiên hơn)</span>`;
+                clean = text;
+                vocab.push({
+                    originalWord: "important",
+                    advancedOption: "crucial / paramount",
+                    level: "C1 Academic",
+                    meaningVi: "Quan trọng hàng đầu",
+                    exampleSentence: "Education plays a paramount role in society."
+                });
+            }
+
+            return {
+                correctedHtml: html,
+                cleanText: clean,
+                mistakes: mistakes.length > 0 ? mistakes : [
+                    {
+                        original: "văn phong tổng thể",
+                        corrected: "tối ưu trôi chảy",
+                        type: "Gợi ý Style",
+                        explanationVi: "Không phát hiện lỗi ngữ pháp nghiêm trọng. Bài viết đã được điều chỉnh độ tự nhiên theo giọng văn Anh-Mỹ."
+                    }
+                ],
+                vocabulary: vocab,
+                scores: {
+                    fluency: 85,
+                    accuracy: mistakes.length === 0 ? 95 : 75,
+                    vocabVariety: 80,
+                    cefrLevel: "B2 Upper-Intermediate",
+                    overallAdviceVi: "Bài viết của bạn có ý tưởng tốt. Cần lưu ý chia đúng thì động từ ở quá khứ và thử thay thế các từ đơn giản (như good, bad, happy) bằng các tính từ nâng cao C1 để đạt điểm cao hơn."
+                }
+            };
+        }
+
+        // Render Data into UI
+        function renderDashboardResults(data) {
+            // 1. Corrected Tab
+            highlightedOutput.innerHTML = data.correctedHtml;
+            cleanOutput.innerText = data.cleanText;
+
+            // 2. Mistakes Breakdown Tab
+            mistakeBadge.innerText = data.mistakes.length;
+            mistakesList.innerHTML = '';
+            
+            data.mistakes.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5";
+                card.innerHTML = `
+                    <div class="flex items-center justify-between text-xs font-semibold">
+                        <span class="text-rose-600 bg-rose-50 px-2 py-0.5 rounded border border-rose-100">${item.type || 'Lỗi Ngữ Pháp'}</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm">
+                        <span class="line-through text-rose-500 font-medium">${item.original}</span>
+                        <i class="fa-solid fa-arrow-right text-xs text-slate-400"></i>
+                        <span class="text-emerald-700 font-bold">${item.corrected}</span>
+                    </div>
+                    <p class="text-xs text-slate-600 leading-relaxed pt-1 border-t border-slate-200/60">${item.explanationVi}</p>
+                `;
+                mistakesList.appendChild(card);
+            });
+
+            // 3. Vocabulary Tab
+            vocabList.innerHTML = '';
+            if (data.vocabulary && data.vocabulary.length > 0) {
+                data.vocabulary.forEach(v => {
+                    const card = document.createElement('div');
+                    card.className = "p-3.5 bg-amber-50/40 border border-amber-200/60 rounded-xl space-y-1";
+                    card.innerHTML = `
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-semibold text-amber-800 bg-amber-100 px-2 py-0.5 rounded">${v.level || 'C1/C2'}</span>
+                            <span class="text-xs text-slate-500">Từ gốc: <del class="no-underline bg-none text-slate-500">${v.originalWord}</del></span>
+                        </div>
+                        <div class="text-base font-bold text-slate-900">${v.advancedOption}</div>
+                        <div class="text-xs text-slate-700 font-medium">Nghĩa: ${v.meaningVi}</div>
+                        ${v.exampleSentence ? `<div class="text-xs text-slate-500 italic mt-1 bg-white p-2 rounded border border-slate-100">Ví dụ: "${v.exampleSentence}"</div>` : ''}
+                    `;
+                    vocabList.appendChild(card);
+                });
+            } else {
+                vocabList.innerHTML = '<p class="text-xs text-slate-500 italic">Không có từ vựng bổ sung nào cần nâng cấp cho đoạn này.</p>';
+            }
+
+            // 4. Score Tab
+            scoreFluency.innerText = (data.scores.fluency || 80) + '/100';
+            scoreAccuracy.innerText = (data.scores.accuracy || 80) + '/100';
+            scoreVocab.innerText = (data.scores.vocabVariety || 80) + '/100';
+            scoreReadability.innerText = data.scores.cefrLevel || 'B2';
+            overallAdvice.innerText = data.scores.overallAdviceVi || 'Bài viết đạt mức tròn vai, cần củng cố thêm từ vựng chuyên ngành.';
+        }
+
+        // LocalStorage History Handler
+        function saveToHistory(inputTextStr, resultData) {
+            const item = {
+                id: Date.now(),
+                timestamp: new Date().toLocaleString('vi-VN'),
+                original: inputTextStr.substring(0, 70) + (inputTextStr.length > 70 ? '...' : ''),
+                fullInput: inputTextStr,
+                result: resultData
+            };
+
+            historyList.unshift(item);
+            if (historyList.length > 15) historyList.pop(); // Keep last 15
+            localStorage.setItem('ENGLISH_APP_HISTORY', JSON.stringify(historyList));
+        }
+
+        function openHistoryModal() {
+            const container = document.getElementById('historyContainer');
+            container.innerHTML = '';
+
+            if (historyList.length === 0) {
+                container.innerHTML = '<p class="text-xs text-slate-500 text-center py-8">Chưa có lịch sử kiểm tra nào.</p>';
+            } else {
+                historyList.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = "p-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl cursor-pointer transition flex items-center justify-between";
+                    card.innerHTML = `
+                        <div>
+                            <div class="text-xs font-semibold text-slate-800">${item.original}</div>
+                            <div class="text-[11px] text-slate-400">${item.timestamp}</div>
+                        </div>
+                        <button class="px-2.5 py-1 text-xs bg-brand-50 text-brand-700 rounded-lg font-medium">Xem lại</button>
+                    `;
+                    card.onclick = () => {
+                        inputText.value = item.fullInput;
+                        updateTextStats();
+                        currentResult = item.result;
+                        renderDashboardResults(item.result);
+                        emptyState.classList.add('hidden');
+                        closeHistoryModal();
+                        showToast('Đã tải lại kết quả cũ!', 'info');
+                    };
+                    container.appendChild(card);
+                });
+            }
+            document.getElementById('historyModal').classList.remove('hidden');
+        }
+
+        function closeHistoryModal() {
+            document.getElementById('historyModal').classList.add('hidden');
+        }
+
+        function clearHistory() {
+            historyList = [];
+            localStorage.removeItem('ENGLISH_APP_HISTORY');
+            openHistoryModal();
+            showToast('Đã xóa lịch sử', 'info');
+        }
+
+        // API Key Modal Controls
+        function openApiKeyModal() {
+            document.getElementById('apiKeyInput').value = apiKey;
+            document.getElementById('apiKeyModal').classList.remove('hidden');
+        }
+
+        function closeApiKeyModal() {
+            document.getElementById('apiKeyModal').classList.add('hidden');
+        }
+
+        function handleSaveApiKey() {
+            const val = document.getElementById('apiKeyInput').value.trim();
+            saveApiKey(val);
+        }
+
+        function saveApiKey(key) {
+            apiKey = key;
+            if (key) {
+                localStorage.setItem('GEMINI_API_KEY', key);
+                showToast('Đã lưu Gemini API Key!', 'success');
+            } else {
+                localStorage.removeItem('GEMINI_API_KEY');
+                showToast('Đã chuyển về Chế độ Demo', 'info');
+            }
+            updateApiKeyUI();
+            closeApiKeyModal();
+        }
+
+        // Utility: Toast Notification
+        function showToast(msg, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastMsg.innerText = msg;
+
+            if (type === 'success') {
+                toastIcon.className = "fa-solid fa-circle-check text-emerald-400";
+            } else if (type === 'error') {
+                toastIcon.className = "fa-solid fa-circle-xmark text-rose-400";
+            } else if (type === 'warning') {
+                toastIcon.className = "fa-solid fa-triangle-exclamation text-amber-400";
+            } else {
+                toastIcon.className = "fa-solid fa-circle-info text-sky-400";
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
